@@ -184,17 +184,29 @@ footer p{margin:4px 0}
     <ol class="steps">
       <li><a href="https://makecode.microbit.org/" target="_blank" rel="noopener">makecode.microbit.org</a> を開いて「新しいプロジェクト」</li>
       <li>画面上の <b>「JavaScript」</b> に切り替える</li>
-      <li><b>先に</b>左メニューの「拡張機能」から <b>neopixel</b> を追加する<br>
-          <span style="color:var(--sub);font-size:13px">※LEDテープを使わない人も、追加しておけばそのまま動きます。追加せずに貼り付けるとエラーになります</span></li>
-      <li>下のコードを <b>コピー</b>して、エディタの中身を全部消してから貼り付ける</li>
+      <li>下のコードを <b>コピー</b>して、エディタの中身を全部消してから貼り付ける（<b>拡張機能などの準備は不要</b>）</li>
       <li><b>「ダウンロード」</b>して micro:bit に書き込む → 画面にチェックマークが出れば成功</li>
     </ol>
     <div class="row">
-      <button class="btn" id="btnCopy">受信役プログラムをコピー</button>
-      <button class="btn sub" id="btnToggleSrc">コードを表示／隠す</button>
+      <button class="btn" id="btnCopy">受信役プログラムをコピー（標準版）</button>
+      <button class="btn sub toggleSrc" data-src="srcBox">コードを表示／隠す</button>
       <span id="copyMsg" style="color:var(--ok);font-weight:600"></span>
     </div>
     <pre class="src" id="srcBox" style="display:none"></pre>
+
+    <h2 style="margin-top:22px">⑤LEDテープ(NeoPixel)を使う人だけ：LEDテープ対応版</h2>
+    <p style="font-size:14px;margin:6px 0">標準版はLEDテープ命令を無視します。⑤タブでLEDテープを使うときだけ、こちらの版を書き込んでください。
+    <b>この版だけは、貼り付ける前に</b>左メニュー「拡張機能」→検索欄に <code>neopixel</code> →追加、が必要です。</p>
+    <div class="note bad">
+      「<b>名前空間 'neopixel' が見つかりません</b>」というエラーが出たら、拡張機能がまだ入っていません。
+      「拡張機能」から neopixel を追加すると消えます。
+    </div>
+    <div class="row">
+      <button class="btn sub" id="btnCopyNp">LEDテープ対応版をコピー</button>
+      <button class="btn sub toggleSrc" data-src="srcBoxNp">コードを表示／隠す</button>
+      <span id="copyMsgNp" style="color:var(--ok);font-weight:600"></span>
+    </div>
+    <pre class="src" id="srcBoxNp" style="display:none"></pre>
   </div>
 
   <div class="card">
@@ -312,6 +324,7 @@ footer p{margin:4px 0}
   <div class="card">
     <h2>LEDテープ（NeoPixel）</h2>
     <p class="desc">色を選ぶと全部の粒が即座にその色になります。粒を1つずつクリックして塗ることもできます。</p>
+    <div class="note">このタブを使うには、受信役が「<b>LEDテープ対応版</b>」である必要があります（標準版はLEDテープ命令を無視します）。①つなぐタブの下の方からコピーできます。</div>
     <div class="row">
       <label class="lbl">つなぐ端子</label>
       <select id="npPin"><option value="0" selected>P0</option><option value="1">P1</option><option value="2">P2</option></select>
@@ -380,19 +393,22 @@ footer p{margin:4px 0}
   <p>教育目的で自由にご利用・改変いただけます。</p>
 </footer>
 
-<script type="text/plain" id="bridgeSrc">
+<script type="text/plain" id="bridgeNpSrc">
 // ============================================================
-//  micro:bit ブリッジ  v1.0
-//  PC の「micro:bit リアルタイムスタジオ」から送られてくる
-//  命令を受け取って実行し、センサー値を送り返すだけの受信役。
+//  micro:bit ブリッジ LEDテープ対応版  v1.1
+//  ※LEDテープ(NeoPixel)を使う人向け。使わない人は「標準版」
+//    (microbit-bridge.js)の方が簡単です(拡張機能が不要)。
 //
-//  【使い方】
+//  【使い方】※手順3を飛ばすとエラーになります！
 //   1. https://makecode.microbit.org/ →「新しいプロジェクト」
 //   2. 画面上の「JavaScript」に切り替える
-//   3. 先に、左メニュー「拡張機能」から neopixel を追加する
-//      （LEDテープを使わなくても、追加しておけばこのまま動きます）
+//   3. ★先に★ 左メニュー「拡張機能」を開き、検索欄に neopixel
+//      と入れて追加する
 //   4. エディタの中身を全部消して、これを丸ごと貼り付ける
 //   5. 「ダウンロード」して micro:bit に書き込む
+//
+//  「名前空間 'neopixel' が見つかりません」というエラーが出たら、
+//  手順3の拡張機能がまだ入っていません。
 //
 //  一度書き込めば、あとは PC 側の HTML をいじるだけで機能を
 //  足せる。micro:bit への再書き込みは不要。
@@ -592,6 +608,181 @@ basic.pause(300)
 basic.clearScreen()
 serial.writeLine("READY")
 </script>
+<script type="text/plain" id="bridgeSrc">
+// ============================================================
+//  micro:bit ブリッジ 標準版  v1.1  【拡張機能なしでそのまま動く】
+//  PC の「micro:bit リアルタイムスタジオ」「計測・制御スタジオ」から
+//  送られてくる命令を実行し、センサー値を送り返す受信役。
+//
+//  【使い方】
+//   1. https://makecode.microbit.org/ →「新しいプロジェクト」
+//   2. 画面上の「JavaScript」に切り替える
+//   3. エディタの中身を全部消して、これを丸ごと貼り付ける
+//   4. 「ダウンロード」して micro:bit に書き込む
+//
+//  ※LEDテープ(NeoPixel)を使いたい人だけ、代わりに
+//    「LEDテープ対応版」(microbit-bridge-neopixel.js)を使ってください。
+//    そちらは貼り付ける前に「拡張機能」から neopixel の追加が必要です。
+//    この標準版では C/N/F/W(LEDテープ命令)は無視されます。
+//
+//  【通信のきまり】(PC → micro:bit / 1行1命令)
+//    M + 25桁(0-9)   LED画面の明るさを一括指定
+//    T + 文字列       文字をスクロール表示
+//    S ピン,角度      サーボ
+//    A ピン,値        アナログ出力 (0-1023)
+//    D ピン,0/1       デジタル出力
+//    B 周波数,長さms  音 (長さ0=鳴らしっぱなし / 周波数0=停止)
+//    R 0/1            センサー送信のON/OFF
+//    P マスク         端子読み取り (bit0=P0,bit1=P1,bit2=P2)
+//    X                全リセット
+//    ?                生存確認 → "OK" を返す
+//  (micro:bit → PC)
+//    D:ax,ay,az,温度,明るさ,A,B,p0,p1,p2   ※20回/秒
+// ============================================================
+
+serial.redirectToUSB()
+serial.setBaudRate(BaudRate.BaudRate115200)
+
+let streaming = false
+let pinMask = 0
+let buf = ""
+let pos = 0
+
+// ---- 数値の読み取り（MakeCode に split が無いので自前）----
+function readNum(): number {
+    let sign = 1
+    if (pos < buf.length && buf.charAt(pos) == "-") {
+        sign = -1
+        pos++
+    }
+    let v = 0
+    while (pos < buf.length) {
+        let ch = buf.charCodeAt(pos)
+        if (ch < 48 || ch > 57) break
+        v = v * 10 + (ch - 48)
+        pos++
+    }
+    while (pos < buf.length && buf.charAt(pos) != ",") {
+        pos++
+    }
+    if (pos < buf.length) {
+        pos++
+    }
+    return sign * v
+}
+
+function apin(n: number): AnalogPin {
+    if (n == 1) return AnalogPin.P1
+    if (n == 2) return AnalogPin.P2
+    return AnalogPin.P0
+}
+
+function dpin(n: number): DigitalPin {
+    if (n == 1) return DigitalPin.P1
+    if (n == 2) return DigitalPin.P2
+    return DigitalPin.P0
+}
+
+function resetAll() {
+    basic.clearScreen()
+    pins.analogPitch(0, 0)
+    pins.digitalWritePin(DigitalPin.P0, 0)
+    pins.digitalWritePin(DigitalPin.P1, 0)
+    pins.digitalWritePin(DigitalPin.P2, 0)
+    streaming = false
+    pinMask = 0
+}
+
+// ---- 命令の実行 ----
+function handle(line: string) {
+    if (line.length == 0) return
+    buf = line
+    pos = 1
+    let c = line.charAt(0)
+
+    if (c == "M") {
+        for (let i = 0; i < 25; i++) {
+            let v = line.charCodeAt(1 + i) - 48
+            if (v < 0) v = 0
+            if (v > 9) v = 9
+            led.plotBrightness(i % 5, Math.idiv(i, 5), v * 28)
+        }
+    } else if (c == "T") {
+        let msg = line.substr(1, line.length - 1)
+        control.inBackground(function () {
+            basic.showString(msg)
+        })
+    } else if (c == "S") {
+        let sp = readNum()
+        let sa = readNum()
+        pins.servoWritePin(apin(sp), sa)
+    } else if (c == "A") {
+        let ap = readNum()
+        let av = readNum()
+        pins.analogWritePin(apin(ap), av)
+    } else if (c == "D") {
+        let dp = readNum()
+        let dv = readNum()
+        pins.digitalWritePin(dpin(dp), dv)
+    } else if (c == "B") {
+        let f = readNum()
+        let ms = readNum()
+        if (f <= 0) {
+            pins.analogPitch(0, 0)
+        } else if (ms > 0) {
+            control.inBackground(function () {
+                pins.analogPitch(f, ms)
+            })
+        } else {
+            pins.analogPitch(f, 0)
+        }
+    } else if (c == "R") {
+        streaming = readNum() == 1
+    } else if (c == "P") {
+        pinMask = readNum()
+    } else if (c == "X") {
+        resetAll()
+    } else if (c == "?") {
+        serial.writeLine("OK")
+    }
+    // C/N/F/W (LEDテープ) はこの標準版では何もしない
+}
+
+// ---- 受信 ----
+serial.onDataReceived(serial.delimiters(Delimiters.NewLine), function () {
+    handle(serial.readUntil(serial.delimiters(Delimiters.NewLine)))
+})
+
+// ---- センサー値の送信（20回/秒）----
+control.inBackground(function () {
+    while (true) {
+        if (streaming) {
+            let p0 = -1
+            let p1 = -1
+            let p2 = -1
+            if ((pinMask & 1) != 0) p0 = pins.analogReadPin(AnalogPin.P0)
+            if ((pinMask & 2) != 0) p1 = pins.analogReadPin(AnalogPin.P1)
+            if ((pinMask & 4) != 0) p2 = pins.analogReadPin(AnalogPin.P2)
+            serial.writeLine("D:"
+                + input.acceleration(Dimension.X) + ","
+                + input.acceleration(Dimension.Y) + ","
+                + input.acceleration(Dimension.Z) + ","
+                + input.temperature() + ","
+                + input.lightLevel() + ","
+                + (input.buttonIsPressed(Button.A) ? 1 : 0) + ","
+                + (input.buttonIsPressed(Button.B) ? 1 : 0) + ","
+                + p0 + "," + p1 + "," + p2)
+        }
+        basic.pause(50)
+    }
+})
+
+// ---- 起動 ----
+basic.showIcon(IconNames.Yes)
+basic.pause(300)
+basic.clearScreen()
+serial.writeLine("READY")
+</script>
 
 <script>
 'use strict';
@@ -711,16 +902,20 @@ $('#btnDisconnect').addEventListener('click', disconnect);
 $('#btnReset').addEventListener('click', () => { stopStream(); send('X'); ledCells.fill(0); drawMatrix(); log('▶ リセット'); });
 
 const bridgeSrc = $('#bridgeSrc').textContent.trim();
+const bridgeNpSrc = $('#bridgeNpSrc').textContent.trim();
 $('#srcBox').textContent = bridgeSrc;
-$('#btnToggleSrc').addEventListener('click', () => {
-  const b = $('#srcBox'); b.style.display = b.style.display === 'none' ? '' : 'none';
-});
-$('#btnCopy').addEventListener('click', async () => {
-  try { await navigator.clipboard.writeText(bridgeSrc); }
-  catch { const t = document.createElement('textarea'); t.value = bridgeSrc; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
-  $('#copyMsg').textContent = 'コピーしました！';
-  setTimeout(() => $('#copyMsg').textContent = '', 2500);
-});
+$('#srcBoxNp').textContent = bridgeNpSrc;
+$$('.toggleSrc').forEach(b => b.addEventListener('click', () => {
+  const el = $('#' + b.dataset.src); el.style.display = el.style.display === 'none' ? '' : 'none';
+}));
+async function copyBridge(text, msgSel) {
+  try { await navigator.clipboard.writeText(text); }
+  catch { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+  $(msgSel).textContent = 'コピーしました！';
+  setTimeout(() => $(msgSel).textContent = '', 2500);
+}
+$('#btnCopy').addEventListener('click', () => copyBridge(bridgeSrc, '#copyMsg'));
+$('#btnCopyNp').addEventListener('click', () => copyBridge(bridgeNpSrc, '#copyMsgNp'));
 
 /* ============ ② LED画面 ============ */
 const ledCells = new Array(25).fill(0);

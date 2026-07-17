@@ -1,11 +1,13 @@
-// microbit-bridge.js を index.html の <script type="text/plain" id="bridgeSrc"> に流し込む。
-// 受信役プログラムを直したら  node build-embed.js  を実行して同期させること。
+// microbit-bridge.js(標準版) と microbit-bridge-neopixel.js(LEDテープ対応版)を
+// index.html の表示用コピーに流し込む。直したら  node build-embed.js  で同期。
 const fs = require('fs');
-const src = fs.readFileSync('microbit-bridge.js', 'utf8').trim();
-if (src.includes('</script')) throw new Error('bridge に </script が含まれています');
 let html = fs.readFileSync('index.html', 'utf8');
-const re = /(<script type="text\/plain" id="bridgeSrc">)[\s\S]*?(<\/script>)/;
-if (!re.test(html)) throw new Error('index.html に bridgeSrc の埋め込み先が見つかりません');
-html = html.replace(re, `$1\n${src}\n$2`);
+for (const [file, id] of [['microbit-bridge.js', 'bridgeSrc'], ['microbit-bridge-neopixel.js', 'bridgeNpSrc']]) {
+  const src = fs.readFileSync(file, 'utf8').trim();
+  if (src.includes('</script')) throw new Error(file + ' に </script が含まれています');
+  const re = new RegExp(`(<script type="text/plain" id="${id}">)[\\s\\S]*?(</script>)`);
+  if (!re.test(html)) throw new Error(id + ' の埋め込み先が見つかりません');
+  html = html.replace(re, `$1\n${src}\n$2`);
+  console.log('embedded', file, src.length, 'chars');
+}
 fs.writeFileSync('index.html', html);
-console.log('embedded', src.length, 'chars');

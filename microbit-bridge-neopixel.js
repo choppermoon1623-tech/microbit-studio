@@ -1,18 +1,21 @@
 // ============================================================
-//  micro:bit ブリッジ 標準版  v1.1  【拡張機能なしでそのまま動く】
-//  PC の「micro:bit リアルタイムスタジオ」「計測・制御スタジオ」から
-//  送られてくる命令を実行し、センサー値を送り返す受信役。
+//  micro:bit ブリッジ LEDテープ対応版  v1.1
+//  ※LEDテープ(NeoPixel)を使う人向け。使わない人は「標準版」
+//    (microbit-bridge.js)の方が簡単です(拡張機能が不要)。
 //
-//  【使い方】
+//  【使い方】※手順3を飛ばすとエラーになります！
 //   1. https://makecode.microbit.org/ →「新しいプロジェクト」
 //   2. 画面上の「JavaScript」に切り替える
-//   3. エディタの中身を全部消して、これを丸ごと貼り付ける
-//   4. 「ダウンロード」して micro:bit に書き込む
+//   3. ★先に★ 左メニュー「拡張機能」を開き、検索欄に neopixel
+//      と入れて追加する
+//   4. エディタの中身を全部消して、これを丸ごと貼り付ける
+//   5. 「ダウンロード」して micro:bit に書き込む
 //
-//  ※LEDテープ(NeoPixel)を使いたい人だけ、代わりに
-//    「LEDテープ対応版」(microbit-bridge-neopixel.js)を使ってください。
-//    そちらは貼り付ける前に「拡張機能」から neopixel の追加が必要です。
-//    この標準版では C/N/F/W(LEDテープ命令)は無視されます。
+//  「名前空間 'neopixel' が見つかりません」というエラーが出たら、
+//  手順3の拡張機能がまだ入っていません。
+//
+//  一度書き込めば、あとは PC 側の HTML をいじるだけで機能を
+//  足せる。micro:bit への再書き込みは不要。
 //
 //  【通信のきまり】(PC → micro:bit / 1行1命令)
 //    M + 25桁(0-9)   LED画面の明るさを一括指定
@@ -21,6 +24,10 @@
 //    A ピン,値        アナログ出力 (0-1023)
 //    D ピン,0/1       デジタル出力
 //    B 周波数,長さms  音 (長さ0=鳴らしっぱなし / 周波数0=停止)
+//    C ピン,個数      LEDテープの初期設定
+//    N 番号,r,g,b     LEDテープの1粒
+//    F r,g,b          LEDテープ全部
+//    W                LEDテープに反映
 //    R 0/1            センサー送信のON/OFF
 //    P マスク         端子読み取り (bit0=P0,bit1=P1,bit2=P2)
 //    X                全リセット
@@ -32,6 +39,7 @@
 serial.redirectToUSB()
 serial.setBaudRate(BaudRate.BaudRate115200)
 
+let strip: neopixel.Strip = null
 let streaming = false
 let pinMask = 0
 let buf = ""
@@ -78,6 +86,10 @@ function resetAll() {
     pins.digitalWritePin(DigitalPin.P0, 0)
     pins.digitalWritePin(DigitalPin.P1, 0)
     pins.digitalWritePin(DigitalPin.P2, 0)
+    if (strip != null) {
+        strip.clear()
+        strip.show()
+    }
     streaming = false
     pinMask = 0
 }
@@ -125,6 +137,35 @@ function handle(line: string) {
         } else {
             pins.analogPitch(f, 0)
         }
+    } else if (c == "C") {
+        let cp = readNum()
+        let cn = readNum()
+        if (cn > 0) {
+            strip = neopixel.create(dpin(cp), cn, NeoPixelMode.RGB)
+            strip.clear()
+            strip.show()
+        } else {
+            strip = null
+        }
+    } else if (c == "N") {
+        let ni = readNum()
+        let nr = readNum()
+        let ng = readNum()
+        let nb = readNum()
+        if (strip != null) {
+            strip.setPixelColor(ni, neopixel.rgb(nr, ng, nb))
+        }
+    } else if (c == "F") {
+        let fr = readNum()
+        let fg = readNum()
+        let fb = readNum()
+        if (strip != null) {
+            strip.showColor(neopixel.rgb(fr, fg, fb))
+        }
+    } else if (c == "W") {
+        if (strip != null) {
+            strip.show()
+        }
     } else if (c == "R") {
         streaming = readNum() == 1
     } else if (c == "P") {
@@ -134,7 +175,6 @@ function handle(line: string) {
     } else if (c == "?") {
         serial.writeLine("OK")
     }
-    // C/N/F/W (LEDテープ) はこの標準版では何もしない
 }
 
 // ---- 受信 ----
