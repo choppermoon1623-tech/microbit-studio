@@ -1,5 +1,5 @@
 // ============================================================
-//  micro:bit ブリッジ LEDテープ対応版  v1.1
+//  micro:bit ブリッジ LEDテープ対応版  v1.2
 //  ※LEDテープ(NeoPixel)を使う人向け。使わない人は「標準版」
 //    (microbit-bridge.js)の方が簡単です(拡張機能が不要)。
 //
@@ -38,6 +38,10 @@
 
 serial.redirectToUSB()
 serial.setBaudRate(BaudRate.BaudRate115200)
+// 受信バッファを拡大(標準は約20バイトで、M+25桁=26文字の命令が
+// 途中で切れてLED画面の下の行が点かなくなる)
+serial.setRxBufferSize(254)
+serial.setTxBufferSize(254)
 
 let strip: neopixel.Strip = null
 let streaming = false

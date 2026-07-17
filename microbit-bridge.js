@@ -1,5 +1,5 @@
 // ============================================================
-//  micro:bit ブリッジ 標準版  v1.1  【拡張機能なしでそのまま動く】
+//  micro:bit ブリッジ 標準版  v1.2  【拡張機能なしでそのまま動く】
 //  PC の「micro:bit リアルタイムスタジオ」「計測・制御スタジオ」から
 //  送られてくる命令を実行し、センサー値を送り返す受信役。
 //
@@ -31,6 +31,10 @@
 
 serial.redirectToUSB()
 serial.setBaudRate(BaudRate.BaudRate115200)
+// 受信バッファを拡大(標準は約20バイトで、M+25桁=26文字の命令が
+// 途中で切れてLED画面の下の行が点かなくなる)
+serial.setRxBufferSize(254)
+serial.setTxBufferSize(254)
 
 let streaming = false
 let pinMask = 0

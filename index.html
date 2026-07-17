@@ -181,6 +181,8 @@ footer p{margin:4px 0}
 
   <div class="card">
     <h2>ステップ1：受信役プログラムを書き込む（最初の1回だけ）</h2>
+    <div class="note"><b>2026-07-17更新（v1.2）:</b> LED画面の下の行が点かない不具合を直しました。
+      それ以前に書き込んだ micro:bit は、お手数ですが下のコードをコピーし直して再度書き込んでください。</div>
     <ol class="steps">
       <li><a href="https://makecode.microbit.org/" target="_blank" rel="noopener">makecode.microbit.org</a> を開いて「新しいプロジェクト」</li>
       <li>画面上の <b>「JavaScript」</b> に切り替える</li>
@@ -395,7 +397,7 @@ footer p{margin:4px 0}
 
 <script type="text/plain" id="bridgeNpSrc">
 // ============================================================
-//  micro:bit ブリッジ LEDテープ対応版  v1.1
+//  micro:bit ブリッジ LEDテープ対応版  v1.2
 //  ※LEDテープ(NeoPixel)を使う人向け。使わない人は「標準版」
 //    (microbit-bridge.js)の方が簡単です(拡張機能が不要)。
 //
@@ -434,6 +436,10 @@ footer p{margin:4px 0}
 
 serial.redirectToUSB()
 serial.setBaudRate(BaudRate.BaudRate115200)
+// 受信バッファを拡大(標準は約20バイトで、M+25桁=26文字の命令が
+// 途中で切れてLED画面の下の行が点かなくなる)
+serial.setRxBufferSize(254)
+serial.setTxBufferSize(254)
 
 let strip: neopixel.Strip = null
 let streaming = false
@@ -610,7 +616,7 @@ serial.writeLine("READY")
 </script>
 <script type="text/plain" id="bridgeSrc">
 // ============================================================
-//  micro:bit ブリッジ 標準版  v1.1  【拡張機能なしでそのまま動く】
+//  micro:bit ブリッジ 標準版  v1.2  【拡張機能なしでそのまま動く】
 //  PC の「micro:bit リアルタイムスタジオ」「計測・制御スタジオ」から
 //  送られてくる命令を実行し、センサー値を送り返す受信役。
 //
@@ -642,6 +648,10 @@ serial.writeLine("READY")
 
 serial.redirectToUSB()
 serial.setBaudRate(BaudRate.BaudRate115200)
+// 受信バッファを拡大(標準は約20バイトで、M+25桁=26文字の命令が
+// 途中で切れてLED画面の下の行が点かなくなる)
+serial.setRxBufferSize(254)
+serial.setTxBufferSize(254)
 
 let streaming = false
 let pinMask = 0
